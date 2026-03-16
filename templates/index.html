@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Python App — K8s Practice</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: #fff8f0;
+      min-height: 100vh;
+      padding: 40px 20px;
+    }
+    .page { max-width: 560px; margin: 0 auto; }
+    .header { text-align: center; margin-bottom: 28px; }
+    .lang-badge {
+      display: inline-block;
+      background: #fff3e0;
+      color: #e65100;
+      font-size: 12px;
+      font-weight: 700;
+      padding: 4px 14px;
+      border-radius: 20px;
+      letter-spacing: 1px;
+      margin-bottom: 12px;
+    }
+    h1 { font-size: 26px; font-weight: 700; color: #1a1a2e; margin-bottom: 6px; }
+    .subtitle { color: #777; font-size: 14px; }
+
+    .card {
+      background: white;
+      border-radius: 14px;
+      padding: 22px 24px;
+      margin-bottom: 16px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+    }
+    .card-title {
+      font-size: 11px;
+      font-weight: 700;
+      color: #aaa;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 14px;
+    }
+    .row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 7px 0;
+      border-bottom: 1px solid #f5f0ec;
+      font-size: 13.5px;
+    }
+    .row:last-child { border-bottom: none; }
+    .row-key { color: #888; }
+    .row-val { font-weight: 600; color: #1a1a2e; }
+
+    .health-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+    .metric {
+      background: white;
+      border-radius: 12px;
+      padding: 16px 18px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+    }
+    .metric-label { font-size: 11px; color: #aaa; font-weight: 600; text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 6px; }
+    .metric-value { font-size: 22px; font-weight: 700; color: #1a1a2e; }
+    .metric-sub { font-size: 11px; color: #aaa; margin-top: 2px; }
+
+    .bar-wrap { background: #f0f0f0; border-radius: 6px; height: 6px; margin-top: 8px; overflow: hidden; }
+    .bar-fill { height: 100%; border-radius: 6px; background: #ff9800; }
+
+    .status-dot {
+      display: inline-block;
+      width: 8px; height: 8px;
+      background: #4caf50;
+      border-radius: 50%;
+      margin-right: 6px;
+      animation: pulse 2s infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.4; }
+    }
+    .footer { text-align: center; font-size: 12px; color: #bbb; margin-top: 8px; }
+  </style>
+</head>
+<body>
+<div class="page">
+
+  <div class="header">
+    <div class="lang-badge">PYTHON</div>
+    <h1>Python K8s App</h1>
+    <p class="subtitle"><span class="status-dot"></span>Running inside Kubernetes</p>
+  </div>
+
+  <!-- Tech Stack -->
+  <div class="card">
+    <p class="card-title">Tech Stack</p>
+    <div class="row"><span class="row-key">Language</span><span class="row-val">{{ language }}</span></div>
+    <div class="row"><span class="row-key">Implementation</span><span class="row-val">{{ python_impl }}</span></div>
+    <div class="row"><span class="row-key">Framework</span><span class="row-val">{{ framework }}</span></div>
+    <div class="row"><span class="row-key">Server</span><span class="row-val">{{ server }}</span></div>
+    <div class="row"><span class="row-key">Port</span><span class="row-val">{{ port }}</span></div>
+    <div class="row"><span class="row-key">OS / Arch</span><span class="row-val">{{ os }}</span></div>
+  </div>
+
+  <!-- Pod Info -->
+  <div class="card">
+    <p class="card-title">Pod Info</p>
+    <div class="row"><span class="row-key">Pod Name</span><span class="row-val">{{ hostname }}</span></div>
+    <div class="row"><span class="row-key">Pod IP</span><span class="row-val">{{ pod_ip }}</span></div>
+    <div class="row"><span class="row-key">Namespace</span><span class="row-val">{{ namespace }}</span></div>
+    <div class="row"><span class="row-key">Node</span><span class="row-val">{{ node_name }}</span></div>
+    <div class="row"><span class="row-key">Uptime</span><span class="row-val">{{ uptime }}</span></div>
+  </div>
+
+  <!-- System Health -->
+  <div class="health-grid">
+    <div class="metric">
+      <div class="metric-label">Memory Used</div>
+      <div class="metric-value">{{ mem_used }} MB</div>
+      <div class="metric-sub">of {{ mem_total }} MB total</div>
+      <div class="bar-wrap">
+        <div class="bar-fill" style="width: {{ mem_pct }}%;
+          background: {% if mem_pct > 80 %}#f44336{% elif mem_pct > 60 %}#ff9800{% else %}#4caf50{% endif %};">
+        </div>
+      </div>
+    </div>
+    <div class="metric">
+      <div class="metric-label">CPU Usage</div>
+      <div class="metric-value">{{ cpu_pct }}%</div>
+      <div class="metric-sub">at time of request</div>
+      <div class="bar-wrap">
+        <div class="bar-fill" style="width: {{ cpu_pct }}%;
+          background: {% if cpu_pct > 80 %}#f44336{% elif cpu_pct > 60 %}#ff9800{% else %}#4caf50{% endif %};">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <p class="footer">Refresh page to update health stats</p>
+</div>
+</body>
+</html>

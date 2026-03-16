@@ -31,4 +31,4 @@ jobs:
         run: flake8 app.py 
 
       - name: run SAST 
-        run: bandit -r app.py
+        run: bandit -r .

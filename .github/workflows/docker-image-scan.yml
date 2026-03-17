@@ -22,12 +22,12 @@ jobs:
                 password: ${{ secrets.DOCKERHUB_TOKEN }}
             
             - name: Pull Image from Docker Hub
-              run: docker pull ${{ secrets.DOCKERHUB_USERNAME }}/java-k8s-app:${{ github.sha }}
+              run: docker pull ${{ secrets.DOCKERHUB_USERNAME }}/python-k8s-app:${{ github.sha }}
 
             - name: Trivy Scanner
               uses: aquasecurity/trivy-action@0.35.0
               with:
-                image-ref: ${{ secrets.DOCKERHUB_USERNAME }}/java-k8s-app:${{ github.sha }}
+                image-ref: ${{ secrets.DOCKERHUB_USERNAME }}/python-k8s-app:${{ github.sha }}
                 severity: 'CRITICAL,HIGH'
                 format: 'table'
                 exit-code: '1'
@@ -38,7 +38,7 @@ jobs:
               if: always()
               uses: aquasecurity/trivy-action@0.35.0
               with:
-                image-ref: ${{ secrets.DOCKERHUB_USERNAME }}/java-k8s-app:${{ github.sha }}
+                image-ref: ${{ secrets.DOCKERHUB_USERNAME }}/python-k8s-app:${{ github.sha }}
                 format: 'sarif'
                 output: 'trivy-results.sarif'
                 severity: 'CRITICAL,HIGH'

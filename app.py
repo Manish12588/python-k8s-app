@@ -16,10 +16,10 @@ def get_env():
     """Detect where the app is running."""
     if os.environ.get("KUBERNETES_SERVICE_HOST"):
         return "kubernetes"
-    elif os.environ.get("AWS_EXECUTION_ENV") or os.path.exists("/sys/hypervisor/uuid"):
+    if os.environ.get("AWS_EXECUTION_ENV") or \
+            os.path.exists("/sys/hypervisor/uuid"):
         return "ec2"
-    else:
-        return "local"
+    return "local"
 
 
 @app.route("/")
@@ -34,7 +34,6 @@ def home():
     cpu = psutil.cpu_percent(interval=0.1)
     env = get_env()
 
-    # Build env info based on where app is running
     if env == "kubernetes":
         env_info = {
             "env_type": "Kubernetes",

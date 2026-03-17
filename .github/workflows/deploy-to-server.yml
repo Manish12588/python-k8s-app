@@ -50,7 +50,7 @@ jobs:
                  docker run -d \
                     --name python-k8s-app \
                     --restart always \
-                    -p 8080:5000 \
+                    -p 8081:5000 \
                     -e POD_NAMESPACE=prod \
                     -e NODE_NAME=$(hostname) \
                     ${{ secrets.DOCKERHUB_USERNAME }}/python-k8s-app:${{ github.sha }}
